@@ -1,0 +1,14 @@
+{
+  "perceptron_mistakes": 14,
+  "novikoff_bound": 1812.5367367873089,
+  "novikoff_R": 4.080426577573095,
+  "novikoff_gamma": 0.09584338832444256,
+  "perceptron_train_acc": 1.0,
+  "grad_check_rel_err": 1.2702057426426222e-09,
+  "gd_param_err": 1.2486905287545369e-08,
+  "gd_loss_gap": 0.0,
+  "logistic_train_acc": 0.96,
+  "logistic_test_acc": 0.926,
+  "majority_baseline": 0.5025,
+  "xor_acc": 0.3675
+}
