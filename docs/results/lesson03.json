@@ -70,32 +70,32 @@
   },
   "overfitting": {
     "no regularisation": {
-      "train_acc": 1.0,
-      "val_acc_final": 0.9926666666666667,
-      "val_loss_final": 0.02391618112476985,
-      "best_epoch": 397,
-      "val_acc_early_stop": 0.993
+      "train_acc": 0.9933333333333333,
+      "val_acc_final": 0.7596666666666667,
+      "val_loss_final": 1.1648525786520616,
+      "best_epoch": 58,
+      "val_acc_early_stop": 0.8353333333333334
     },
     "weight decay 1e-3": {
-      "train_acc": 1.0,
-      "val_acc_final": 0.9936666666666667,
-      "val_loss_final": 0.045265346950933254,
-      "best_epoch": 392,
-      "val_acc_early_stop": 0.994
+      "train_acc": 0.94,
+      "val_acc_final": 0.797,
+      "val_loss_final": 0.5417212908153476,
+      "best_epoch": 122,
+      "val_acc_early_stop": 0.8323333333333334
     },
     "dropout 0.3": {
-      "train_acc": 0.9933333333333333,
-      "val_acc_final": 0.9863333333333333,
-      "val_loss_final": 0.04737677627822031,
-      "best_epoch": 332,
-      "val_acc_early_stop": 0.9933333333333333
+      "train_acc": 0.9533333333333334,
+      "val_acc_final": 0.7953333333333333,
+      "val_loss_final": 0.6050438778995246,
+      "best_epoch": 197,
+      "val_acc_early_stop": 0.859
     },
     "dropout 0.3 + wd 1e-3": {
-      "train_acc": 0.9933333333333333,
-      "val_acc_final": 0.9923333333333333,
-      "val_loss_final": 0.04821308130271141,
-      "best_epoch": 396,
-      "val_acc_early_stop": 0.9946666666666667
+      "train_acc": 0.9133333333333333,
+      "val_acc_final": 0.819,
+      "val_loss_final": 0.4519940590882668,
+      "best_epoch": 199,
+      "val_acc_early_stop": 0.892
     }
   }
 }

@@ -3,3 +3,4 @@
 *.gif binary
 *.npz binary
 *.pt binary
+*.ipynb linguist-documentation
