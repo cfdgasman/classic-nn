@@ -210,9 +210,11 @@ def batchnorm_part(rng, epochs):
 
 # ------------------------------------------------------------------ 6. overfitting
 def overfitting_part(rng, epochs):
-    banner("6. Overfitting: 150 noisy training points, a 2-256-256-3 network")
-    X, y = spirals(150, rng, noise=0.35)
-    Xv, yv = spirals(3000, rng, noise=0.35)
+    banner("6. Overfitting: 150 training points with 20% flipped labels, a 2-256-256-3 network")
+    X, y = spirals(150, rng, noise=0.3)
+    flip = rng.random(len(y)) < 0.2  # label noise: a big net will happily memorise it
+    y[flip] = (y[flip] + rng.integers(1, 3, flip.sum())) % 3
+    Xv, yv = spirals(3000, rng, noise=0.3)  # clean validation labels
     fig, axs = plt.subplots(1, 2, figsize=(11, 3.8))
     out = {}
     for name, kw in [("no regularisation", {}), ("weight decay 1e-3", dict(weight_decay=1e-3)),
@@ -240,10 +242,9 @@ def overfitting_part(rng, epochs):
 
 def main(quick: bool = False) -> dict:
     rng = seed_everything(3)
-    e = 20 if quick else 1
     res = {}
     res.update(init_part(rng))
-    res.update(activation_part(rng, 150 // e * 1 if not quick else 10))
+    res.update(activation_part(rng, 150 if not quick else 10))
     res.update(optimiser_part(rng, 100 if not quick else 10))
     res.update(schedule_part(rng, 100 if not quick else 10))
     res.update(batchnorm_part(rng, 100 if not quick else 10))
