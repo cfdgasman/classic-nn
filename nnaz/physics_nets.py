@@ -177,13 +177,19 @@ def train_neural_ode(func, t, y, steps=1500, window=12, batch=16, lr=5e-3, seed=
     opt = torch.optim.Adam(func.parameters(), lr=lr)
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, steps)
     hist, t0 = [], time.time()
+    offs = torch.arange(window)
     for s in range(steps):
         starts = torch.randint(0, len(t) - window, (batch,), generator=g)
-        loss = 0.0
-        for st in starts.tolist():
-            pred = odeint_rk4(func, Z[st], tt[st:st + window], substeps=2)
-            loss = loss + ((pred - Z[st:st + window]) ** 2).mean()
-        loss = loss / batch
+        idx = starts[:, None] + offs[None]                  # [batch, window]
+        Zw, Tw = Z[idx], tt[idx]                            # all windows integrated TOGETHER,
+        z, preds = Zw[:, 0], [Zw[:, 0]]                     # each with its own (irregular) steps
+        for k in range(window - 1):
+            h = ((Tw[:, k + 1] - Tw[:, k]) / 2)[:, None]    # 2 RK4 substeps per interval
+            for _ in range(2):
+                k1 = func(z); k2 = func(z + 0.5 * h * k1); k3 = func(z + 0.5 * h * k2); k4 = func(z + h * k3)
+                z = z + h / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
+            preds.append(z)
+        loss = ((torch.stack(preds, 1) - Zw) ** 2).mean()
         opt.zero_grad(); loss.backward(); opt.step(); sched.step()
         hist.append(loss.item())
         if log and (s + 1) % log == 0:

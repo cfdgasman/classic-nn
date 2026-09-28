@@ -210,18 +210,54 @@ def table_14(r):
                 f"{_sci(r['solver_resolution_check'])}.")
 
 
+def table_15(r):
+    h = r["hnn"]
+    rows = [[k, " / ".join(f"{d:.3f}" for d in v["energy_drift_rel"]),
+             " / ".join(f"{e:.3f}" for e in v["traj_err"]) if "traj_err" in v else "0 (reference)"] for k, v in h.items()]
+    t1 = md_table(["pendulum, 100 time units, 3 unseen initial states", "relative change of the true energy",
+                   "mean state error vs exact"], rows)
+    n = r["neural_ode"]
+    t2 = md_table(["Lotka-Volterra model", "log-RMSE on [0, 30] (data window)", "log-RMSE on (30, 60] (extrapolation)",
+                   "max change of the LV invariant"],
+                  [[k, f"{v['log_rmse_train_window']:.3f}", f"{v['log_rmse_extrapolation']:.3f}",
+                    f"{v['max_invariant_change']:.3f}"] for k, v in n.items() if isinstance(v, dict)])
+    return t1 + "\n\n" + t2
+
+
+def table_solvers(r):
+    f, sp, fem, lbm = r["fd_burgers"], r["spectral_burgers_nu0.02"], r["p1_fem_poisson"], r["lbm_poiseuille"]
+    return md_table(["solver", "resolutions", "errors", "observed order"], [
+        ["FD Burgers, rel. L2 vs Cole-Hopf (t = 1, ν = 0.01/π)", " / ".join(map(str, f["N"])),
+         " / ".join(_sci(e) for e in f["rel_l2"]), f"{f['order']:.2f}"],
+        ["spectral Burgers, max error vs Cole-Hopf (ν = 0.02)", " / ".join(map(str, sp["N"])),
+         " / ".join(_sci(e) for e in sp["max_err"]), "exponential"],
+        ["P1 FEM Poisson, rel. L2 (manufactured)", " / ".join(f"{n}²" for n in fem["n"]),
+         " / ".join(_sci(e) for e in fem["rel_l2"]), f"{fem['order']:.2f}"],
+        ["LBM Poiseuille, max rel. error", " / ".join(map(str, lbm["ny"])),
+         " / ".join(_sci(e) for e in lbm["max_rel_err"]), f"{lbm['order']:.2f}"],
+    ])
+
+
 TABLES = {1: table_01, 2: table_02, 3: table_03, 4: table_04, 5: table_05, 6: table_06,
-          7: table_07, 8: table_08, 9: table_09, 10: table_10, 11: table_11, 12: table_12, 14: table_14}
+          7: table_07, 8: table_08, 9: table_09, 10: table_10, 11: table_11, 12: table_12, 14: table_14, 15: table_15}
+
+
+def _load_json(name):
+    import json
+
+    return json.loads((DOCS / "results" / f"{name}.json").read_text())
 
 
 def update_readme(path=ROOT / "README.md") -> None:
     text = path.read_text()
-    for n, fn in TABLES.items():
+    items = list(TABLES.items()) + [("solvers", table_solvers)]
+    for n, fn in items:
         try:
-            table = fn(load_results(n))
+            table = fn(load_results(n) if n != "solvers" else _load_json("solvers"))
         except (FileNotFoundError, KeyError):  # lesson not (re-)run with the current code yet
             continue
-        pat = re.compile(rf"(<!-- results:{n:02d} -->)(.*?)(<!-- /results:{n:02d} -->)", re.S)
+        tag = f"{n:02d}" if isinstance(n, int) else n
+        pat = re.compile(rf"(<!-- results:{tag} -->)(.*?)(<!-- /results:{tag} -->)", re.S)
         text = pat.sub(lambda m: f"{m.group(1)}\n{table}\n{m.group(3)}", text)
     path.write_text(text)
     (DOCS / "results").mkdir(exist_ok=True)
