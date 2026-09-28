@@ -15,21 +15,21 @@
   "gnn": {
     "MPNN (spatial, edge vectors), 12 layers": {
       "params": 119553,
-      "train_s": 254.50371932983398,
-      "test_median": 0.19772387156808396,
-      "test_p90": 0.32894154464561565,
-      "fine_median": 0.7833722376242442
+      "train_s": 204.9207091331482,
+      "test_median": 0.19681880837210058,
+      "test_p90": 0.3453368444277419,
+      "fine_median": 0.8090015548040481
     },
     "GCN (spectral-derived, isotropic), 12 layers": {
       "params": 14977,
-      "train_s": 58.954344034194946,
-      "test_median": 0.2762011625064453,
-      "test_p90": 0.665291971482817,
-      "fine_median": 0.8683612772395078
+      "train_s": 56.38205909729004,
+      "test_median": 0.2759072574363851,
+      "test_p90": 0.6617163279862436,
+      "fine_median": 0.8587732594542132
     },
     "per-node MLP (no neighbours)": {
       "params": 17281,
-      "train_s": 8.820121765136719,
+      "train_s": 8.624542474746704,
       "test_median": 0.5312448839004409,
       "test_p90": 1.3115343477628603,
       "fine_median": 0.6670718181057287
