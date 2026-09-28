@@ -1,0 +1,48 @@
+{
+  "hnn": {
+    "baseline MLP": {
+      "energy_drift_rel": [
+        0.1218018201146023,
+        0.10614734493473721,
+        0.48384649385444917
+      ],
+      "traj_err": [
+        0.12912348418081476,
+        0.18848770033792359,
+        2.2973505901945708
+      ]
+    },
+    "HNN": {
+      "energy_drift_rel": [
+        0.021295100024566953,
+        0.02010366743584946,
+        0.009391843855734706
+      ],
+      "traj_err": [
+        0.15928084660300598,
+        0.1229720578413083,
+        0.01911021377206058
+      ]
+    },
+    "exact field + RK4 (integrator error only)": {
+      "energy_drift_rel": [
+        9.060781539212209e-06,
+        9.99535126067208e-06,
+        7.5853839275729925e-06
+      ]
+    }
+  },
+  "neural_ode": {
+    "neural ODE": {
+      "log_rmse_train_window": 0.023889429982976128,
+      "log_rmse_extrapolation": 0.0768763477380636,
+      "max_invariant_change": 0.03449371343329344
+    },
+    "linear ODE in log-space": {
+      "log_rmse_train_window": 0.6569238552506107,
+      "log_rmse_extrapolation": 1.1084200568503177,
+      "max_invariant_change": 0.6670603738685112
+    },
+    "train_s": 629.3736369609833
+  }
+}
