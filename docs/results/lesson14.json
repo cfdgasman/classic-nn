@@ -14,8 +14,8 @@
   "FNO on 512 grid (trained on 128)": 0.0023346415255218744,
   "DeepONet queried on 512 grid": 0.035653647035360336,
   "train_s": {
-    "DeepONet": 57.54356265068054,
-    "FNO": 375.35043573379517
+    "DeepONet": 57.127164125442505,
+    "FNO": 366.1778709888458
   },
-  "fno_ms_per_sample": 1.008470058441162
+  "fno_ms_per_sample": 0.9292161464691162
 }

@@ -51,15 +51,13 @@ between the column space of $W_d$ and $\operatorname{span}(V_k)$.
 |---|---|
 | noisy input | 9.37 dB |
 | PCA projection (best k = 64) | 15.09 dB |
-| convolutional denoising autoencoder | 9.89 dB |
+| convolutional denoising autoencoder | 18.72 dB |
 
 | 2-D code | 5-NN digit accuracy |
 |---|---|
 | PCA | 41.2% |
 | MLP autoencoder | 58.2% |
 <!-- /results:07 -->
-
-*Note: the denoising row above still comes from the first (non-residual) denoiser, which barely beat the noisy input; the residual version described below is regenerated in the next full run.*
 
 **Reading the table.**
 * The linear AE reaches the Eckart-Young optimum to within 0.1-0.6 %, as theory says.
@@ -86,6 +84,10 @@ convolutional network with **residual learning** (Zhang et al. 2017): it predict
 $f(\tilde x)$ and outputs $\tilde x+f(\tilde x)$, starting from the identity map.
 
 <p align="center"><img src="../../docs/lesson07/denoising.png" width="65%"></p>
+
+The convolutional denoiser gains about 9 dB over the noisy input and about 3.5 dB over the best
+PCA projection. It knows what strokes look like *locally*, at every position (weight sharing),
+whereas PCA can only keep or discard global components.
 
 ## Run it
 

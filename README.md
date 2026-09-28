@@ -2,16 +2,27 @@
 
 [![CI](https://github.com/cfdgasman/classic-nn/actions/workflows/ci.yml/badge.svg)](https://github.com/cfdgasman/classic-nn/actions/workflows/ci.yml)
 
-A step-by-step, hands-on course that takes you from **a single artificial neuron** to
-**transformers** and **scientific machine learning** (physics-informed networks, neural
-surrogates of PDE solvers, VAEs and diffusion models). Every lesson is a numbered folder with
+A step-by-step, hands-on course that takes you from **a single artificial neuron** through
+backpropagation, CNNs, LSTMs, autoencoders and **transformers**, to the methods that matter most
+to **engineers, CFD practitioners and physicists**: physics-informed networks, neural surrogates,
+neural operators (DeepONet, FNO), graph networks on unstructured meshes, Hamiltonian networks,
+neural ODEs, and reduced-order models of a flow simulation. Along the way it also covers
+generative models (VAE, diffusion) and the classics (self-organising maps, Hopfield networks,
+the Differentiable Neural Computer).
 
-* a runnable, heavily commented **script** (`lessons/NN_topic/lesson.py`) that explains the idea,
-  derives the maths and implements it,
+Every lesson is a numbered folder with
+
+* a **lesson page** (`lessons/NN_topic/README.md`) with the theory, the maths, figures and results,
+* a runnable, heavily commented **script** (`lessons/NN_topic/lesson.py`) that implements it,
 * a **Jupyter notebook** (`notebooks/NN_topic.ipynb`) that walks through the same lesson cell by
   cell, with the figures inline,
-* **figures and GIFs** saved to `docs/lessonNN/` and the numbers of the run saved to
-  `docs/results/lessonNN.json` (the tables below are generated from these files by `run.py`).
+* **figures and GIFs** in `docs/lessonNN/` and the numbers of the run in
+  `docs/results/lessonNN.json` (every table in this README is generated from these files by `run.py`).
+
+Every result is **validated** against something trustworthy: finite-difference gradient checks,
+exact solutions (Cole-Hopf, manufactured solutions, Poiseuille flow, the closed-form score of a
+Gaussian mixture), published benchmarks and trivial baselines. Failures and limitations are
+reported, not hidden.
 
 Everything runs on a laptop **CPU in minutes**. The first three lessons use only NumPy, so every
 gradient is derived and coded by hand before we let PyTorch's autograd do it for us.
@@ -66,6 +77,19 @@ gradient is derived and coded by hand before we let PyTorch's autograd do it for
 
 The classical CFD/PDE solvers used to generate and verify data have their own page:
 [`docs/SOLVERS.md`](docs/SOLVERS.md).
+
+### For engineers, CFD and physics: where to look
+
+| I want to ... | lessons |
+|---|---|
+| understand what a network and backpropagation really compute | 01, 02, 04 |
+| solve a PDE with a network / do an inverse problem | 09 (PINN) |
+| replace an expensive solver in a design or UQ loop | 09 (parameter surrogate), 14 (DeepONet, FNO) |
+| learn on unstructured FEM/CFD meshes | 13 (graph networks) |
+| compress and forecast simulation snapshots (POD, DMD, autoencoders) | 07, 16 |
+| respect conservation laws / learn dynamics from trajectories | 15 (HNN, neural ODE), 06 (LSTM) |
+| cluster or visualise high-dimensional engineering data | 11 (SOM), 07 |
+| check the reference solvers themselves | [the CFD / PDE solvers](#the-cfd--pde-solvers-behind-the-course), `validate_solvers.py` |
 
 ## Quick start
 
@@ -491,12 +515,12 @@ with Adam (lr 1e-3, batch 128) for 5 epochs:
 |---|---|---|---|---|
 | MNIST | majority class | - | 11.3% | - |
 | MNIST | logistic regression | 7850 | 92.4% | 2 s |
-| MNIST | MLP 784-96-10 | 76330 | 97.7% | 3 s |
-| MNIST | CNN | 80202 | 99.2% | 34 s |
+| MNIST | MLP 784-96-10 | 76330 | 97.7% | 4 s |
+| MNIST | CNN | 80202 | 99.2% | 33 s |
 | FashionMNIST | majority class | - | 10.0% | - |
 | FashionMNIST | logistic regression | 7850 | 84.1% | 2 s |
-| FashionMNIST | MLP 784-96-10 | 76330 | 87.6% | 4 s |
-| FashionMNIST | CNN | 80202 | 89.6% | 765 s |
+| FashionMNIST | MLP 784-96-10 | 76330 | 87.6% | 3 s |
+| FashionMNIST | CNN | 80202 | 89.6% | 31 s |
 
 Convolution implementations agree: loops vs `F.conv2d` 1.4e-14, im2col vs `F.conv2d` 0.0e+00.
 <!-- /results:05 -->
@@ -641,15 +665,13 @@ between the column space of $W_d$ and $\operatorname{span}(V_k)$.
 |---|---|
 | noisy input | 9.37 dB |
 | PCA projection (best k = 64) | 15.09 dB |
-| convolutional denoising autoencoder | 9.89 dB |
+| convolutional denoising autoencoder | 18.72 dB |
 
 | 2-D code | 5-NN digit accuracy |
 |---|---|
 | PCA | 41.2% |
 | MLP autoencoder | 58.2% |
 <!-- /results:07 -->
-
-*Note: the denoising row above still comes from the first (non-residual) denoiser, which barely beat the noisy input; the residual version described below is regenerated in the next full run.*
 
 **Reading the table.**
 * The linear AE reaches the Eckart-Young optimum to within 0.1-0.6 %, as theory says.
@@ -676,6 +698,10 @@ convolutional network with **residual learning** (Zhang et al. 2017): it predict
 $f(\tilde x)$ and outputs $\tilde x+f(\tilde x)$, starting from the identity map.
 
 <p align="center"><img src="docs/lesson07/denoising.png" width="65%"></p>
+
+The convolutional denoiser gains about 9 dB over the noisy input and about 3.5 dB over the best
+PCA projection. It knows what strokes look like *locally*, at every position (weight sharing),
+whereas PCA can only keep or discard global components.
 
 ---
 
@@ -732,7 +758,7 @@ It is trained with AdamW, warm-up and cosine decay for 3000 steps of 32×64 char
 | uniform over the 65 characters | 4.174 |
 | unigram (character frequencies) | 3.347 |
 | bigram (add-one smoothing) | 2.482 |
-| TinyGPT, 0.81 M params, 3000 steps (5.4 min CPU) | **1.605** (train 1.404) |
+| TinyGPT, 0.81 M params, 3000 steps (5.0 min CPU) | **1.605** (train 1.404) |
 
 From-scratch attention vs PyTorch: 1.1e-16 (NumPy, float64), 8.9e-08 (multi-head module, float32).
 <!-- /results:08 -->
@@ -842,8 +868,8 @@ parameter pairs.
 | 128 | 5.2e-03 | 0.03 s |
 | 256 | 4.8e-03 | 0.06 s |
 | 512 | 1.3e-03 | 0.13 s |
-| 1024 | 3.2e-04 | 0.46 s |
-| 2048 | 8.1e-05 | 2.24 s |
+| 1024 | 3.2e-04 | 0.45 s |
+| 2048 | 8.1e-05 | 2.30 s |
 
 Observed order of accuracy: **1.97** (second-order scheme).
 
@@ -854,7 +880,7 @@ Observed order of accuracy: **1.97** (second-order scheme).
 | PINN rel. L2 error, whole space-time grid | **1.3e-03** |
 | PINN max abs error | 6.7e-03 |
 | PINN rel. L2 error at t = 0.25 / 0.5 / 0.75 / 1 | 9.9e-04 / 1.2e-03 / 1.6e-03 / 2.9e-03 |
-| PINN parameters / training time (CPU) | 5409 / 15.8 min |
+| PINN parameters / training time (CPU) | 5409 / 5.6 min |
 | Raissi et al. (2019), 9x20 net, 10 000 points (published) | 6.7e-04 |
 
 **Surrogate**
@@ -866,7 +892,7 @@ Observed order of accuracy: **1.97** (second-order scheme).
 | piecewise-linear interpolation (Delaunay in parameter space) | 7.2e-04 | 2.2e-03 |
 | neural surrogate (MLP 2 -> 128 grid values) | 1.5e-03 | 4.5e-03 |
 
-Solver: 111 ms per solution (vectorised over parameters); its own error at the parameter-space corners is 1.6e-03. Surrogate: 4.2 µs per solution after 19 s of training on 400 solver runs.
+Solver: 109 ms per solution (vectorised over parameters); its own error at the parameter-space corners is 1.6e-03. Surrogate: 4.5 µs per solution after 20 s of training on 400 solver runs.
 <!-- /results:09 -->
 
 **Honest reading.**
@@ -1091,7 +1117,7 @@ lengths it never saw, until the 32 slots start to run out (the few errors at $L\
 | DNC | 0.000 | 0.000 | 0.000 | 0.000 | 0.000 | 0.016 | 0.023 |
 | LSTM | 0.000 | 0.001 | 0.037 | 0.143 | 0.419 | 0.497 | 0.501 |
 
-Parameters: DNC 27,950 (LSTM controller 64 + 32 × 16 memory), LSTM baseline 203,014 (2 × 128). Training: 6000 steps; DNC 6.5 min, LSTM 0.8 min on CPU. Chance level is 0.5.
+Parameters: DNC 27,950 (LSTM controller 64 + 32 × 16 memory), LSTM baseline 203,014 (2 × 128). Training: 6000 steps; DNC 6.3 min, LSTM 0.7 min on CPU. Chance level is 0.5.
 <!-- /results:12 -->
 
 ---
@@ -1109,7 +1135,7 @@ edge features (the relative position $x_j-x_i$ and its length).
 We solve $-\Delta u=f$ on the unit square with $u=0$ on the boundary, on jittered Delaunay
 meshes. On each triangle $T$ the hat functions have constant gradients $G$, the element
 stiffness is $K_T=|T|\,GG^\top$, and the consistent mass matrix is
-$M_T=\frac{|T|}{12}\begin{psmallmatrix}2&1&1\\1&2&1\\1&1&2\end{psmallmatrix}$. We assemble,
+$M_T=\frac{|T|}{12}\begin{pmatrix}2&1&1\\1&2&1\\1&1&2\end{pmatrix}$. We assemble,
 apply the Dirichlet condition, and solve the sparse system. The solver is **verified** with the
 manufactured solution $u=\sin\pi x\sin\pi y$ (so $f=2\pi^2u$): the error drops by 4× per mesh
 halving (second order).
@@ -1134,8 +1160,8 @@ limitation, and the finer-mesh test measures it.
 <!-- results:13 -->
 | model | parameters | median rel. L2 error, test meshes | 90th percentile | median, finer 30x30 meshes | training |
 |---|---|---|---|---|---|
-| MPNN (spatial, edge vectors), 12 layers | 119553 | 0.198 | 0.329 | 0.783 | 255 s |
-| GCN (spectral-derived, isotropic), 12 layers | 14977 | 0.276 | 0.665 | 0.868 | 59 s |
+| MPNN (spatial, edge vectors), 12 layers | 119553 | 0.197 | 0.345 | 0.809 | 205 s |
+| GCN (spectral-derived, isotropic), 12 layers | 14977 | 0.276 | 0.662 | 0.859 | 56 s |
 | per-node MLP (no neighbours) | 17281 | 0.531 | 1.312 | 0.667 | 9 s |
 | zero prediction | - | 1.000 | - | 1.000 | - |
 
@@ -1207,7 +1233,7 @@ trained network can therefore be evaluated on a **finer grid** than it was train
 | FNO evaluated on the 512-point grid (trained on 128) | 0.0023 |
 | DeepONet queried at 512 points | 0.0357 |
 
-Cost per sample: spectral solver 129 ms (batched), FNO 1.01 ms. Training on CPU: DeepONet 58 s, FNO 375 s. The solver's own resolution check (2× finer grid): 2.4e-12.
+Cost per sample: spectral solver 129 ms (batched), FNO 0.93 ms. Training on CPU: DeepONet 57 s, FNO 366 s. The solver's own resolution check (2× finer grid): 2.4e-12.
 <!-- /results:14 -->
 
 **Reading the numbers.**
@@ -1442,10 +1468,10 @@ off, because the RK4 time-stepping error, not the spatial resolution, then domin
 
 Weak form: find $u\in H^1_0$ with $\int\nabla u\cdot\nabla v=\int fv$ for all test functions $v$.
 With piecewise-linear "hat" functions on a triangulation, the gradients are constant per
-triangle, $G=\begin{psmallmatrix}-1&-1\\1&0\\0&1\end{psmallmatrix}B^{-1}$, where
+triangle, $G=\begin{pmatrix}-1&-1\\1&0\\0&1\end{pmatrix}B^{-1}$, where
 $B=[p_1-p_0,\ p_2-p_0]$. The element matrices are
 
-$$ K_T=|T|\,GG^\top,\qquad M_T=\frac{|T|}{12}\begin{psmallmatrix}2&1&1\\1&2&1\\1&1&2\end{psmallmatrix},\qquad F=Mf_h . $$
+$$ K_T=|T|\,GG^\top,\qquad M_T=\frac{|T|}{12}\begin{pmatrix}2&1&1\\1&2&1\\1&1&2\end{pmatrix},\qquad F=Mf_h . $$
 
 They are assembled into sparse global matrices. Dirichlet nodes are eliminated, and the system
 is solved with SciPy's sparse direct solver. Meshes are jittered grids triangulated by
@@ -1583,3 +1609,25 @@ The tests (`pytest`, under 2 minutes on CPU) check the following:
 * D. Kingma, J. Ba (2015), *Adam: a method for stochastic optimization*, ICLR.
 * I. Loshchilov, F. Hutter (2017), *SGDR: stochastic gradient descent with warm restarts*, ICLR.
 * A. Karpathy, *CS231n notes* and *char-rnn* (Tiny Shakespeare data).
+* A. Paszke et al. (2019), *PyTorch: an imperative style, high-performance deep learning library*, NeurIPS.
+* Y. LeCun, L. Bottou, Y. Bengio, P. Haffner (1998), *Gradient-based learning applied to document recognition*, Proc. IEEE.
+* H. Xiao, K. Rasul, R. Vollgraf (2017), *Fashion-MNIST*, arXiv:1708.07747.
+* S. Hochreiter, J. Schmidhuber (1997), *Long short-term memory*, Neural Computation 9.
+* P. Baldi, K. Hornik (1989), *Neural networks and principal component analysis*, Neural Networks 2.
+* K. Zhang, W. Zuo, Y. Chen, D. Meng, L. Zhang (2017), *Beyond a Gaussian denoiser: residual learning of deep CNN for image denoising* (DnCNN), IEEE TIP.
+* A. Vaswani et al. (2017), *Attention is all you need*, NeurIPS; A. Radford et al. (2019), *Language models are unsupervised multitask learners* (GPT-2).
+* M. Raissi, P. Perdikaris, G. E. Karniadakis (2019), *Physics-informed neural networks*, J. Comput. Phys. 378.
+* C. Basdevant et al. (1986), *Spectral and finite difference solutions of the Burgers equation*, Computers & Fluids 14.
+* D. Kingma, M. Welling (2014), *Auto-encoding variational Bayes*, ICLR; Y. Burda, R. Grosse, R. Salakhutdinov (2016), *Importance weighted autoencoders*, ICLR.
+* J. Ho, A. Jain, P. Abbeel (2020), *Denoising diffusion probabilistic models*, NeurIPS.
+* T. Kohonen (1982), *Self-organized formation of topologically correct feature maps*, Biol. Cybern. 43.
+* J. J. Hopfield (1982), *Neural networks and physical systems with emergent collective computational abilities*, PNAS 79; D. Amit, H. Gutfreund, H. Sompolinsky (1985), PRL 55; L. Personnaz, I. Guyon, G. Dreyfus (1985), J. Physique Lett. 46; H. Ramsauer et al. (2021), *Hopfield networks is all you need*, ICLR.
+* A. Graves et al. (2016), *Hybrid computing using a neural network with dynamic external memory*, Nature 538.
+* T. Kipf, M. Welling (2017), *Semi-supervised classification with graph convolutional networks*, ICLR; J. Gilmer et al. (2017), *Neural message passing for quantum chemistry*, ICML; T. Pfaff et al. (2021), *Learning mesh-based simulation with graph networks*, ICLR.
+* L. Lu, P. Jin, G. Pang, Z. Zhang, G. E. Karniadakis (2021), *Learning nonlinear operators via DeepONet*, Nat. Mach. Intell. 3; T. Chen, H. Chen (1995), IEEE TNN 6.
+* Z. Li et al. (2021), *Fourier neural operator for parametric partial differential equations*, ICLR.
+* S. Greydanus, M. Dzamba, J. Yosinski (2019), *Hamiltonian neural networks*, NeurIPS; R. T. Q. Chen et al. (2018), *Neural ordinary differential equations*, NeurIPS.
+* P. J. Schmid (2010), *Dynamic mode decomposition of numerical and experimental data*, J. Fluid Mech. 656; J. L. Lumley (1967) / L. Sirovich (1987), POD.
+* T. Krüger et al. (2017), *The lattice Boltzmann method: principles and practice*, Springer; Q. Zou, X. He (1997), Phys. Fluids 9.
+* C. H. K. Williamson (1988), *Defining a universal and continuous Strouhal-Reynolds number relationship for the laminar vortex shedding of a circular cylinder*, Phys. Fluids 31.
+* S. C. Brenner, L. R. Scott, *The mathematical theory of finite element methods*, Springer; L. N. Trefethen (2000), *Spectral methods in MATLAB*, SIAM.

@@ -6,17 +6,17 @@
     "logistic regression": {
       "params": 7850,
       "test_acc": 0.9243000149726868,
-      "train_time_s": 1.8293490409851074
+      "train_time_s": 1.853646993637085
     },
     "MLP 784-96-10": {
       "params": 76330,
       "test_acc": 0.9765999913215637,
-      "train_time_s": 3.4855191707611084
+      "train_time_s": 3.5763156414031982
     },
     "CNN": {
       "params": 80202,
       "test_acc": 0.991599977016449,
-      "train_time_s": 33.64193940162659
+      "train_time_s": 32.50161337852478
     },
     "confusion": [
       [
@@ -146,17 +146,17 @@
     "logistic regression": {
       "params": 7850,
       "test_acc": 0.8406000137329102,
-      "train_time_s": 1.761901617050171
+      "train_time_s": 1.7390697002410889
     },
     "MLP 784-96-10": {
       "params": 76330,
       "test_acc": 0.8758999705314636,
-      "train_time_s": 3.5354857444763184
+      "train_time_s": 3.358563184738159
     },
     "CNN": {
       "params": 80202,
       "test_acc": 0.8959000110626221,
-      "train_time_s": 765.2633368968964
+      "train_time_s": 31.290669918060303
     },
     "confusion": [
       [

@@ -80,8 +80,8 @@ parameter pairs.
 | 128 | 5.2e-03 | 0.03 s |
 | 256 | 4.8e-03 | 0.06 s |
 | 512 | 1.3e-03 | 0.13 s |
-| 1024 | 3.2e-04 | 0.46 s |
-| 2048 | 8.1e-05 | 2.24 s |
+| 1024 | 3.2e-04 | 0.45 s |
+| 2048 | 8.1e-05 | 2.30 s |
 
 Observed order of accuracy: **1.97** (second-order scheme).
 
@@ -92,7 +92,7 @@ Observed order of accuracy: **1.97** (second-order scheme).
 | PINN rel. L2 error, whole space-time grid | **1.3e-03** |
 | PINN max abs error | 6.7e-03 |
 | PINN rel. L2 error at t = 0.25 / 0.5 / 0.75 / 1 | 9.9e-04 / 1.2e-03 / 1.6e-03 / 2.9e-03 |
-| PINN parameters / training time (CPU) | 5409 / 15.8 min |
+| PINN parameters / training time (CPU) | 5409 / 5.6 min |
 | Raissi et al. (2019), 9x20 net, 10 000 points (published) | 6.7e-04 |
 
 **Surrogate**
@@ -104,7 +104,7 @@ Observed order of accuracy: **1.97** (second-order scheme).
 | piecewise-linear interpolation (Delaunay in parameter space) | 7.2e-04 | 2.2e-03 |
 | neural surrogate (MLP 2 -> 128 grid values) | 1.5e-03 | 4.5e-03 |
 
-Solver: 111 ms per solution (vectorised over parameters); its own error at the parameter-space corners is 1.6e-03. Surrogate: 4.2 µs per solution after 19 s of training on 400 solver runs.
+Solver: 109 ms per solution (vectorised over parameters); its own error at the parameter-space corners is 1.6e-03. Surrogate: 4.5 µs per solution after 20 s of training on 400 solver runs.
 <!-- /results:09 -->
 
 **Honest reading.**
