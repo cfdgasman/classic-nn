@@ -54,7 +54,7 @@ It is trained with AdamW, warm-up and cosine decay for 3000 steps of 32×64 char
 | uniform over the 65 characters | 4.174 |
 | unigram (character frequencies) | 3.347 |
 | bigram (add-one smoothing) | 2.482 |
-| TinyGPT, 0.81 M params, 3000 steps (5.4 min CPU) | **1.605** (train 1.404) |
+| TinyGPT, 0.81 M params, 3000 steps (5.0 min CPU) | **1.605** (train 1.404) |
 
 From-scratch attention vs PyTorch: 1.1e-16 (NumPy, float64), 8.9e-08 (multi-head module, float32).
 <!-- /results:08 -->

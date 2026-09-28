@@ -14,7 +14,7 @@ edge features (the relative position $x_j-x_i$ and its length).
 We solve $-\Delta u=f$ on the unit square with $u=0$ on the boundary, on jittered Delaunay
 meshes. On each triangle $T$ the hat functions have constant gradients $G$, the element
 stiffness is $K_T=|T|\,GG^\top$, and the consistent mass matrix is
-$M_T=\frac{|T|}{12}\begin{psmallmatrix}2&1&1\\1&2&1\\1&1&2\end{psmallmatrix}$. We assemble,
+$M_T=\frac{|T|}{12}\begin{pmatrix}2&1&1\\1&2&1\\1&1&2\end{pmatrix}$. We assemble,
 apply the Dirichlet condition, and solve the sparse system. The solver is **verified** with the
 manufactured solution $u=\sin\pi x\sin\pi y$ (so $f=2\pi^2u$): the error drops by 4× per mesh
 halving (second order).
@@ -39,8 +39,8 @@ limitation, and the finer-mesh test measures it.
 <!-- results:13 -->
 | model | parameters | median rel. L2 error, test meshes | 90th percentile | median, finer 30x30 meshes | training |
 |---|---|---|---|---|---|
-| MPNN (spatial, edge vectors), 12 layers | 119553 | 0.198 | 0.329 | 0.783 | 255 s |
-| GCN (spectral-derived, isotropic), 12 layers | 14977 | 0.276 | 0.665 | 0.868 | 59 s |
+| MPNN (spatial, edge vectors), 12 layers | 119553 | 0.197 | 0.345 | 0.809 | 205 s |
+| GCN (spectral-derived, isotropic), 12 layers | 14977 | 0.276 | 0.662 | 0.859 | 56 s |
 | per-node MLP (no neighbours) | 17281 | 0.531 | 1.312 | 0.667 | 9 s |
 | zero prediction | - | 1.000 | - | 1.000 | - |
 

@@ -47,7 +47,7 @@ trained network can therefore be evaluated on a **finer grid** than it was train
 | FNO evaluated on the 512-point grid (trained on 128) | 0.0023 |
 | DeepONet queried at 512 points | 0.0357 |
 
-Cost per sample: spectral solver 129 ms (batched), FNO 1.01 ms. Training on CPU: DeepONet 58 s, FNO 375 s. The solver's own resolution check (2× finer grid): 2.4e-12.
+Cost per sample: spectral solver 129 ms (batched), FNO 0.93 ms. Training on CPU: DeepONet 57 s, FNO 366 s. The solver's own resolution check (2× finer grid): 2.4e-12.
 <!-- /results:14 -->
 
 **Reading the numbers.**

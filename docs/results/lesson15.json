@@ -34,15 +34,15 @@
   },
   "neural_ode": {
     "neural ODE": {
-      "log_rmse_train_window": 0.023889429982976128,
-      "log_rmse_extrapolation": 0.0768763477380636,
-      "max_invariant_change": 0.03449371343329344
+      "log_rmse_train_window": 0.023889350045103543,
+      "log_rmse_extrapolation": 0.07687508410916284,
+      "max_invariant_change": 0.03449228292181883
     },
     "linear ODE in log-space": {
       "log_rmse_train_window": 0.6569238552506107,
       "log_rmse_extrapolation": 1.1084200568503177,
       "max_invariant_change": 0.6670603738685112
     },
-    "train_s": 629.3736369609833
+    "train_s": 39.12647294998169
   }
 }
