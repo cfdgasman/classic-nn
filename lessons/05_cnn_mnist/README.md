@@ -49,12 +49,12 @@ with Adam (lr 1e-3, batch 128) for 5 epochs:
 |---|---|---|---|---|
 | MNIST | majority class | - | 11.3% | - |
 | MNIST | logistic regression | 7850 | 92.4% | 2 s |
-| MNIST | MLP 784-96-10 | 76330 | 97.7% | 3 s |
-| MNIST | CNN | 80202 | 99.2% | 34 s |
+| MNIST | MLP 784-96-10 | 76330 | 97.7% | 4 s |
+| MNIST | CNN | 80202 | 99.2% | 33 s |
 | FashionMNIST | majority class | - | 10.0% | - |
 | FashionMNIST | logistic regression | 7850 | 84.1% | 2 s |
-| FashionMNIST | MLP 784-96-10 | 76330 | 87.6% | 4 s |
-| FashionMNIST | CNN | 80202 | 89.6% | 765 s |
+| FashionMNIST | MLP 784-96-10 | 76330 | 87.6% | 3 s |
+| FashionMNIST | CNN | 80202 | 89.6% | 31 s |
 
 Convolution implementations agree: loops vs `F.conv2d` 1.4e-14, im2col vs `F.conv2d` 0.0e+00.
 <!-- /results:05 -->

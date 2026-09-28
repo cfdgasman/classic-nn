@@ -515,12 +515,12 @@ with Adam (lr 1e-3, batch 128) for 5 epochs:
 |---|---|---|---|---|
 | MNIST | majority class | - | 11.3% | - |
 | MNIST | logistic regression | 7850 | 92.4% | 2 s |
-| MNIST | MLP 784-96-10 | 76330 | 97.7% | 3 s |
-| MNIST | CNN | 80202 | 99.2% | 34 s |
+| MNIST | MLP 784-96-10 | 76330 | 97.7% | 4 s |
+| MNIST | CNN | 80202 | 99.2% | 33 s |
 | FashionMNIST | majority class | - | 10.0% | - |
 | FashionMNIST | logistic regression | 7850 | 84.1% | 2 s |
-| FashionMNIST | MLP 784-96-10 | 76330 | 87.6% | 4 s |
-| FashionMNIST | CNN | 80202 | 89.6% | 765 s |
+| FashionMNIST | MLP 784-96-10 | 76330 | 87.6% | 3 s |
+| FashionMNIST | CNN | 80202 | 89.6% | 31 s |
 
 Convolution implementations agree: loops vs `F.conv2d` 1.4e-14, im2col vs `F.conv2d` 0.0e+00.
 <!-- /results:05 -->
@@ -665,7 +665,7 @@ between the column space of $W_d$ and $\operatorname{span}(V_k)$.
 |---|---|
 | noisy input | 9.37 dB |
 | PCA projection (best k = 64) | 15.09 dB |
-| convolutional denoising autoencoder | 9.89 dB |
+| convolutional denoising autoencoder | 18.72 dB |
 
 | 2-D code | 5-NN digit accuracy |
 |---|---|
@@ -758,7 +758,7 @@ It is trained with AdamW, warm-up and cosine decay for 3000 steps of 32×64 char
 | uniform over the 65 characters | 4.174 |
 | unigram (character frequencies) | 3.347 |
 | bigram (add-one smoothing) | 2.482 |
-| TinyGPT, 0.81 M params, 3000 steps (5.4 min CPU) | **1.605** (train 1.404) |
+| TinyGPT, 0.81 M params, 3000 steps (5.0 min CPU) | **1.605** (train 1.404) |
 
 From-scratch attention vs PyTorch: 1.1e-16 (NumPy, float64), 8.9e-08 (multi-head module, float32).
 <!-- /results:08 -->
@@ -868,8 +868,8 @@ parameter pairs.
 | 128 | 5.2e-03 | 0.03 s |
 | 256 | 4.8e-03 | 0.06 s |
 | 512 | 1.3e-03 | 0.13 s |
-| 1024 | 3.2e-04 | 0.46 s |
-| 2048 | 8.1e-05 | 2.24 s |
+| 1024 | 3.2e-04 | 0.45 s |
+| 2048 | 8.1e-05 | 2.30 s |
 
 Observed order of accuracy: **1.97** (second-order scheme).
 
@@ -880,7 +880,7 @@ Observed order of accuracy: **1.97** (second-order scheme).
 | PINN rel. L2 error, whole space-time grid | **1.3e-03** |
 | PINN max abs error | 6.7e-03 |
 | PINN rel. L2 error at t = 0.25 / 0.5 / 0.75 / 1 | 9.9e-04 / 1.2e-03 / 1.6e-03 / 2.9e-03 |
-| PINN parameters / training time (CPU) | 5409 / 15.8 min |
+| PINN parameters / training time (CPU) | 5409 / 5.6 min |
 | Raissi et al. (2019), 9x20 net, 10 000 points (published) | 6.7e-04 |
 
 **Surrogate**
@@ -892,7 +892,7 @@ Observed order of accuracy: **1.97** (second-order scheme).
 | piecewise-linear interpolation (Delaunay in parameter space) | 7.2e-04 | 2.2e-03 |
 | neural surrogate (MLP 2 -> 128 grid values) | 1.5e-03 | 4.5e-03 |
 
-Solver: 111 ms per solution (vectorised over parameters); its own error at the parameter-space corners is 1.6e-03. Surrogate: 4.2 µs per solution after 19 s of training on 400 solver runs.
+Solver: 109 ms per solution (vectorised over parameters); its own error at the parameter-space corners is 1.6e-03. Surrogate: 4.5 µs per solution after 20 s of training on 400 solver runs.
 <!-- /results:09 -->
 
 **Honest reading.**
@@ -1117,7 +1117,7 @@ lengths it never saw, until the 32 slots start to run out (the few errors at $L\
 | DNC | 0.000 | 0.000 | 0.000 | 0.000 | 0.000 | 0.016 | 0.023 |
 | LSTM | 0.000 | 0.001 | 0.037 | 0.143 | 0.419 | 0.497 | 0.501 |
 
-Parameters: DNC 27,950 (LSTM controller 64 + 32 × 16 memory), LSTM baseline 203,014 (2 × 128). Training: 6000 steps; DNC 6.5 min, LSTM 0.8 min on CPU. Chance level is 0.5.
+Parameters: DNC 27,950 (LSTM controller 64 + 32 × 16 memory), LSTM baseline 203,014 (2 × 128). Training: 6000 steps; DNC 6.3 min, LSTM 0.7 min on CPU. Chance level is 0.5.
 <!-- /results:12 -->
 
 ---
@@ -1160,8 +1160,8 @@ limitation, and the finer-mesh test measures it.
 <!-- results:13 -->
 | model | parameters | median rel. L2 error, test meshes | 90th percentile | median, finer 30x30 meshes | training |
 |---|---|---|---|---|---|
-| MPNN (spatial, edge vectors), 12 layers | 119553 | 0.198 | 0.329 | 0.783 | 255 s |
-| GCN (spectral-derived, isotropic), 12 layers | 14977 | 0.276 | 0.665 | 0.868 | 59 s |
+| MPNN (spatial, edge vectors), 12 layers | 119553 | 0.197 | 0.345 | 0.809 | 205 s |
+| GCN (spectral-derived, isotropic), 12 layers | 14977 | 0.276 | 0.662 | 0.859 | 56 s |
 | per-node MLP (no neighbours) | 17281 | 0.531 | 1.312 | 0.667 | 9 s |
 | zero prediction | - | 1.000 | - | 1.000 | - |
 
@@ -1233,7 +1233,7 @@ trained network can therefore be evaluated on a **finer grid** than it was train
 | FNO evaluated on the 512-point grid (trained on 128) | 0.0023 |
 | DeepONet queried at 512 points | 0.0357 |
 
-Cost per sample: spectral solver 129 ms (batched), FNO 1.01 ms. Training on CPU: DeepONet 58 s, FNO 375 s. The solver's own resolution check (2× finer grid): 2.4e-12.
+Cost per sample: spectral solver 129 ms (batched), FNO 0.93 ms. Training on CPU: DeepONet 57 s, FNO 366 s. The solver's own resolution check (2× finer grid): 2.4e-12.
 <!-- /results:14 -->
 
 **Reading the numbers.**

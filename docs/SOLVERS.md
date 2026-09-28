@@ -60,10 +60,10 @@ off, because the RK4 time-stepping error, not the spatial resolution, then domin
 
 Weak form: find $u\in H^1_0$ with $\int\nabla u\cdot\nabla v=\int fv$ for all test functions $v$.
 With piecewise-linear "hat" functions on a triangulation, the gradients are constant per
-triangle, $G=\begin{psmallmatrix}-1&-1\\1&0\\0&1\end{psmallmatrix}B^{-1}$, where
+triangle, $G=\begin{pmatrix}-1&-1\\1&0\\0&1\end{pmatrix}B^{-1}$, where
 $B=[p_1-p_0,\ p_2-p_0]$. The element matrices are
 
-$$ K_T=|T|\,GG^\top,\qquad M_T=\frac{|T|}{12}\begin{psmallmatrix}2&1&1\\1&2&1\\1&1&2\end{psmallmatrix},\qquad F=Mf_h . $$
+$$ K_T=|T|\,GG^\top,\qquad M_T=\frac{|T|}{12}\begin{pmatrix}2&1&1\\1&2&1\\1&1&2\end{pmatrix},\qquad F=Mf_h . $$
 
 They are assembled into sparse global matrices. Dirichlet nodes are eliminated, and the system
 is solved with SciPy's sparse direct solver. Meshes are jittered grids triangulated by
