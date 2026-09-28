@@ -31,7 +31,7 @@ def equilibrium(rho, ux, uy):
     return rho * W[:, None, None] * (1 + cu + 0.5 * cu ** 2 - usq)
 
 
-def cylinder_flow(nx=400, ny=100, D=16, Re=100.0, U=0.1, n_steps=30000, save_every=25, save_from=18000,
+def cylinder_flow(nx=400, ny=100, D=16, Re=100.0, U=0.1, n_steps=16000, save_every=25, save_from=6000,
                   probe=None, log=5000):
     """Run the simulation; return saved vorticity snapshots and diagnostics.
 
@@ -45,6 +45,10 @@ def cylinder_flow(nx=400, ny=100, D=16, Re=100.0, U=0.1, n_steps=30000, save_eve
     solid = (X - cx) ** 2 + (Y - cy) ** 2 <= (D / 2) ** 2
     rho = np.ones((nx, ny))
     ux, uy = U * np.ones((nx, ny)), np.zeros((nx, ny))
+    # an asymmetric transverse "kick" in the near wake: without it the symmetric wake is a
+    # (unstable) steady solution and shedding takes ~25 000 steps to appear from round-off
+    kick = np.exp(-((X - cx - 2 * D) ** 2 + (Y - cy - D / 2) ** 2) / (2 * D ** 2))
+    uy += 0.5 * U * kick
     ux[solid] = 0
     f = equilibrium(rho, ux, uy)
     probe = probe or (cx + 3 * D, cy)
@@ -89,3 +93,41 @@ def strouhal(probe_v, D, U, discard=0.5):
     delta = 0.5 * (a - c) / (a - 2 * b + c)
     freq = (k + delta) / len(v)          # cycles per time step
     return freq * D / U
+
+
+def poiseuille(ny=32, tau=0.8, g=1e-6, n_steps=20000):
+    """Body-force-driven channel flow between two walls (verification case).
+
+    Periodic in x, half-way bounce-back walls just outside the first and last
+    fluid rows (walls at y = -1/2 and y = ny - 1/2). The force g is added by
+    shifting the equilibrium velocity, u_eq = u + tau g (Shan-Chen style forcing);
+    the physical velocity is u = (sum c f)/rho + g/2. Exact steady solution:
+        u(y) = g / (2 nu) (y + 1/2) (ny - 1/2 - y),   nu = (tau - 1/2) / 3.
+    Returns (y, u_numerical, u_exact).
+    """
+    nx = 3
+    rho = np.ones((nx, ny)); ux = np.zeros((nx, ny)); uy = np.zeros((nx, ny))
+    f = equilibrium(rho, ux, uy)
+    for _ in range(n_steps):
+        rho = f.sum(0)
+        ux = (f * C[:, 0, None, None]).sum(0) / rho
+        uy = (f * C[:, 1, None, None]).sum(0) / rho
+        fout = f - (f - equilibrium(rho, ux + tau * g, uy)) / tau
+        new = np.empty_like(f)
+        for i in range(9):
+            # stream in x (periodic); in y stream without wrap-around
+            s = np.roll(fout[i], C[i, 0], axis=0)
+            if C[i, 1] == 1:
+                new[i, :, 1:] = s[:, :-1]
+                new[i, :, 0] = fout[OPP[i], :, 0]          # bounce-back at the bottom wall
+            elif C[i, 1] == -1:
+                new[i, :, :-1] = s[:, 1:]
+                new[i, :, -1] = fout[OPP[i], :, -1]        # bounce-back at the top wall
+            else:
+                new[i] = s
+        f = new
+    rho = f.sum(0)
+    u = (f * C[:, 0, None, None]).sum(0)[1] / rho[1] + g / 2
+    nu = (tau - 0.5) / 3
+    y = np.arange(ny)
+    return y, u, g / (2 * nu) * (y + 0.5) * (ny - 0.5 - y)

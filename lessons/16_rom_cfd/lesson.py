@@ -37,7 +37,7 @@ def simulate(quick):
         d = dict(np.load(path, allow_pickle=True))
         d = {k: (v.item() if v.ndim == 0 else v) for k, v in d.items()}
     else:
-        kw = dict(n_steps=12000, save_from=8000) if quick else {}
+        kw = dict(n_steps=6000, save_from=3000) if quick else {}
         d = cylinder_flow(**kw)
         np.savez_compressed(path, **d)
     St = strouhal(d["probe_v"], d["D"], d["U"])

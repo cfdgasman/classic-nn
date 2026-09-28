@@ -8,7 +8,7 @@ from nnaz.data import load_mnist
 from nnaz.dnc import DNC, allocation, train_copy
 from nnaz.generative import VAE, EpsNet, Schedule, exact_eps, neg_elbo, ring_of_gaussians, train_vae
 from nnaz.gnn import MPNN, fem_poisson, make_graph, rel_errors, square_mesh, train_gnn
-from nnaz.lbm import C, equilibrium
+from nnaz.lbm import C, equilibrium, poiseuille
 from nnaz.operators import FNO1d, burgers_spectral, grf_1d, rel_l2, train_operator
 from nnaz.physics_nets import HNN, pendulum_data, train_field
 from nnaz.rom import dmd_fit, pod
@@ -147,3 +147,8 @@ def test_lbm_equilibrium_moments_and_pod_dmd():
     Uu = np.linalg.svd(S.T, full_matrices=False)[0][:, :2]
     M = dmd_fit(S @ Uu)
     assert abs(np.abs(np.angle(np.linalg.eigvals(M))).max() - w) < 1e-8
+
+
+def test_lbm_poiseuille_profile():
+    y, u, ue = poiseuille(ny=8, n_steps=2500)
+    assert np.abs(u - ue).max() / ue.max() < 0.012              # 0.8 % at 8 cells, order 2
