@@ -1,0 +1,42 @@
+{
+  "fem_n": [
+    9,
+    17,
+    33,
+    65
+  ],
+  "fem_err": [
+    0.039522229592211196,
+    0.008650100238853996,
+    0.002215247894668716,
+    0.0005594126748207951
+  ],
+  "fem_order": 2.14224258577298,
+  "gnn": {
+    "MPNN (spatial, edge vectors), 12 layers": {
+      "params": 119553,
+      "train_s": 254.50371932983398,
+      "test_median": 0.19772387156808396,
+      "test_p90": 0.32894154464561565,
+      "fine_median": 0.7833722376242442
+    },
+    "GCN (spectral-derived, isotropic), 12 layers": {
+      "params": 14977,
+      "train_s": 58.954344034194946,
+      "test_median": 0.2762011625064453,
+      "test_p90": 0.665291971482817,
+      "fine_median": 0.8683612772395078
+    },
+    "per-node MLP (no neighbours)": {
+      "params": 17281,
+      "train_s": 8.820121765136719,
+      "test_median": 0.5312448839004409,
+      "test_p90": 1.3115343477628603,
+      "fine_median": 0.6670718181057287
+    },
+    "zero prediction": {
+      "test_median": 1.0,
+      "fine_median": 1.0
+    }
+  }
+}
