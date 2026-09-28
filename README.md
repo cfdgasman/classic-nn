@@ -2,16 +2,27 @@
 
 [![CI](https://github.com/cfdgasman/classic-nn/actions/workflows/ci.yml/badge.svg)](https://github.com/cfdgasman/classic-nn/actions/workflows/ci.yml)
 
-A step-by-step, hands-on course that takes you from **a single artificial neuron** to
-**transformers** and **scientific machine learning** (physics-informed networks, neural
-surrogates of PDE solvers, VAEs and diffusion models). Every lesson is a numbered folder with
+A step-by-step, hands-on course that takes you from **a single artificial neuron** through
+backpropagation, CNNs, LSTMs, autoencoders and **transformers**, to the methods that matter most
+to **engineers, CFD practitioners and physicists**: physics-informed networks, neural surrogates,
+neural operators (DeepONet, FNO), graph networks on unstructured meshes, Hamiltonian networks,
+neural ODEs, and reduced-order models of a flow simulation. Along the way it also covers
+generative models (VAE, diffusion) and the classics (self-organising maps, Hopfield networks,
+the Differentiable Neural Computer).
 
-* a runnable, heavily commented **script** (`lessons/NN_topic/lesson.py`) that explains the idea,
-  derives the maths and implements it,
+Every lesson is a numbered folder with
+
+* a **lesson page** (`lessons/NN_topic/README.md`) with the theory, the maths, figures and results,
+* a runnable, heavily commented **script** (`lessons/NN_topic/lesson.py`) that implements it,
 * a **Jupyter notebook** (`notebooks/NN_topic.ipynb`) that walks through the same lesson cell by
   cell, with the figures inline,
-* **figures and GIFs** saved to `docs/lessonNN/` and the numbers of the run saved to
-  `docs/results/lessonNN.json` (the tables below are generated from these files by `run.py`).
+* **figures and GIFs** in `docs/lessonNN/` and the numbers of the run in
+  `docs/results/lessonNN.json` (every table in this README is generated from these files by `run.py`).
+
+Every result is **validated** against something trustworthy: finite-difference gradient checks,
+exact solutions (Cole-Hopf, manufactured solutions, Poiseuille flow, the closed-form score of a
+Gaussian mixture), published benchmarks and trivial baselines. Failures and limitations are
+reported, not hidden.
 
 Everything runs on a laptop **CPU in minutes**. The first three lessons use only NumPy, so every
 gradient is derived and coded by hand before we let PyTorch's autograd do it for us.
@@ -66,6 +77,19 @@ gradient is derived and coded by hand before we let PyTorch's autograd do it for
 
 The classical CFD/PDE solvers used to generate and verify data have their own page:
 [`docs/SOLVERS.md`](docs/SOLVERS.md).
+
+### For engineers, CFD and physics: where to look
+
+| I want to ... | lessons |
+|---|---|
+| understand what a network and backpropagation really compute | 01, 02, 04 |
+| solve a PDE with a network / do an inverse problem | 09 (PINN) |
+| replace an expensive solver in a design or UQ loop | 09 (parameter surrogate), 14 (DeepONet, FNO) |
+| learn on unstructured FEM/CFD meshes | 13 (graph networks) |
+| compress and forecast simulation snapshots (POD, DMD, autoencoders) | 07, 16 |
+| respect conservation laws / learn dynamics from trajectories | 15 (HNN, neural ODE), 06 (LSTM) |
+| cluster or visualise high-dimensional engineering data | 11 (SOM), 07 |
+| check the reference solvers themselves | [the CFD / PDE solvers](#the-cfd--pde-solvers-behind-the-course), `validate_solvers.py` |
 
 ## Quick start
 
@@ -649,8 +673,6 @@ between the column space of $W_d$ and $\operatorname{span}(V_k)$.
 | MLP autoencoder | 58.2% |
 <!-- /results:07 -->
 
-*Note: the denoising row above still comes from the first (non-residual) denoiser, which barely beat the noisy input; the residual version described below is regenerated in the next full run.*
-
 **Reading the table.**
 * The linear AE reaches the Eckart-Young optimum to within 0.1-0.6 %, as theory says.
 * The principal angles are small, but not zero, and they are **largest for $k=4$**. When two
@@ -676,6 +698,10 @@ convolutional network with **residual learning** (Zhang et al. 2017): it predict
 $f(\tilde x)$ and outputs $\tilde x+f(\tilde x)$, starting from the identity map.
 
 <p align="center"><img src="docs/lesson07/denoising.png" width="65%"></p>
+
+The convolutional denoiser gains about 9 dB over the noisy input and about 3.5 dB over the best
+PCA projection. It knows what strokes look like *locally*, at every position (weight sharing),
+whereas PCA can only keep or discard global components.
 
 ---
 
@@ -1109,7 +1135,7 @@ edge features (the relative position $x_j-x_i$ and its length).
 We solve $-\Delta u=f$ on the unit square with $u=0$ on the boundary, on jittered Delaunay
 meshes. On each triangle $T$ the hat functions have constant gradients $G$, the element
 stiffness is $K_T=|T|\,GG^\top$, and the consistent mass matrix is
-$M_T=\frac{|T|}{12}\begin{psmallmatrix}2&1&1\\1&2&1\\1&1&2\end{psmallmatrix}$. We assemble,
+$M_T=\frac{|T|}{12}\begin{pmatrix}2&1&1\\1&2&1\\1&1&2\end{pmatrix}$. We assemble,
 apply the Dirichlet condition, and solve the sparse system. The solver is **verified** with the
 manufactured solution $u=\sin\pi x\sin\pi y$ (so $f=2\pi^2u$): the error drops by 4× per mesh
 halving (second order).
@@ -1442,10 +1468,10 @@ off, because the RK4 time-stepping error, not the spatial resolution, then domin
 
 Weak form: find $u\in H^1_0$ with $\int\nabla u\cdot\nabla v=\int fv$ for all test functions $v$.
 With piecewise-linear "hat" functions on a triangulation, the gradients are constant per
-triangle, $G=\begin{psmallmatrix}-1&-1\\1&0\\0&1\end{psmallmatrix}B^{-1}$, where
+triangle, $G=\begin{pmatrix}-1&-1\\1&0\\0&1\end{pmatrix}B^{-1}$, where
 $B=[p_1-p_0,\ p_2-p_0]$. The element matrices are
 
-$$ K_T=|T|\,GG^\top,\qquad M_T=\frac{|T|}{12}\begin{psmallmatrix}2&1&1\\1&2&1\\1&1&2\end{psmallmatrix},\qquad F=Mf_h . $$
+$$ K_T=|T|\,GG^\top,\qquad M_T=\frac{|T|}{12}\begin{pmatrix}2&1&1\\1&2&1\\1&1&2\end{pmatrix},\qquad F=Mf_h . $$
 
 They are assembled into sparse global matrices. Dirichlet nodes are eliminated, and the system
 is solved with SciPy's sparse direct solver. Meshes are jittered grids triangulated by
@@ -1583,3 +1609,25 @@ The tests (`pytest`, under 2 minutes on CPU) check the following:
 * D. Kingma, J. Ba (2015), *Adam: a method for stochastic optimization*, ICLR.
 * I. Loshchilov, F. Hutter (2017), *SGDR: stochastic gradient descent with warm restarts*, ICLR.
 * A. Karpathy, *CS231n notes* and *char-rnn* (Tiny Shakespeare data).
+* A. Paszke et al. (2019), *PyTorch: an imperative style, high-performance deep learning library*, NeurIPS.
+* Y. LeCun, L. Bottou, Y. Bengio, P. Haffner (1998), *Gradient-based learning applied to document recognition*, Proc. IEEE.
+* H. Xiao, K. Rasul, R. Vollgraf (2017), *Fashion-MNIST*, arXiv:1708.07747.
+* S. Hochreiter, J. Schmidhuber (1997), *Long short-term memory*, Neural Computation 9.
+* P. Baldi, K. Hornik (1989), *Neural networks and principal component analysis*, Neural Networks 2.
+* K. Zhang, W. Zuo, Y. Chen, D. Meng, L. Zhang (2017), *Beyond a Gaussian denoiser: residual learning of deep CNN for image denoising* (DnCNN), IEEE TIP.
+* A. Vaswani et al. (2017), *Attention is all you need*, NeurIPS; A. Radford et al. (2019), *Language models are unsupervised multitask learners* (GPT-2).
+* M. Raissi, P. Perdikaris, G. E. Karniadakis (2019), *Physics-informed neural networks*, J. Comput. Phys. 378.
+* C. Basdevant et al. (1986), *Spectral and finite difference solutions of the Burgers equation*, Computers & Fluids 14.
+* D. Kingma, M. Welling (2014), *Auto-encoding variational Bayes*, ICLR; Y. Burda, R. Grosse, R. Salakhutdinov (2016), *Importance weighted autoencoders*, ICLR.
+* J. Ho, A. Jain, P. Abbeel (2020), *Denoising diffusion probabilistic models*, NeurIPS.
+* T. Kohonen (1982), *Self-organized formation of topologically correct feature maps*, Biol. Cybern. 43.
+* J. J. Hopfield (1982), *Neural networks and physical systems with emergent collective computational abilities*, PNAS 79; D. Amit, H. Gutfreund, H. Sompolinsky (1985), PRL 55; L. Personnaz, I. Guyon, G. Dreyfus (1985), J. Physique Lett. 46; H. Ramsauer et al. (2021), *Hopfield networks is all you need*, ICLR.
+* A. Graves et al. (2016), *Hybrid computing using a neural network with dynamic external memory*, Nature 538.
+* T. Kipf, M. Welling (2017), *Semi-supervised classification with graph convolutional networks*, ICLR; J. Gilmer et al. (2017), *Neural message passing for quantum chemistry*, ICML; T. Pfaff et al. (2021), *Learning mesh-based simulation with graph networks*, ICLR.
+* L. Lu, P. Jin, G. Pang, Z. Zhang, G. E. Karniadakis (2021), *Learning nonlinear operators via DeepONet*, Nat. Mach. Intell. 3; T. Chen, H. Chen (1995), IEEE TNN 6.
+* Z. Li et al. (2021), *Fourier neural operator for parametric partial differential equations*, ICLR.
+* S. Greydanus, M. Dzamba, J. Yosinski (2019), *Hamiltonian neural networks*, NeurIPS; R. T. Q. Chen et al. (2018), *Neural ordinary differential equations*, NeurIPS.
+* P. J. Schmid (2010), *Dynamic mode decomposition of numerical and experimental data*, J. Fluid Mech. 656; J. L. Lumley (1967) / L. Sirovich (1987), POD.
+* T. Krüger et al. (2017), *The lattice Boltzmann method: principles and practice*, Springer; Q. Zou, X. He (1997), Phys. Fluids 9.
+* C. H. K. Williamson (1988), *Defining a universal and continuous Strouhal-Reynolds number relationship for the laminar vortex shedding of a circular cylinder*, Phys. Fluids 31.
+* S. C. Brenner, L. R. Scott, *The mathematical theory of finite element methods*, Springer; L. N. Trefethen (2000), *Spectral methods in MATLAB*, SIAM.

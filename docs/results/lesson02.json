@@ -84,7 +84,7 @@
   },
   "majority_test_acc": 0.3333333333333333,
   "linear_test_acc": 0.33,
-  "mlp_train_time_s": 2.222308874130249,
+  "mlp_train_time_s": 2.2895801067352295,
   "mlp_train_acc": 1.0,
   "mlp_test_acc": 1.0,
   "loss_first": 1.0810900562925507,
