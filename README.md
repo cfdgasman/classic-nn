@@ -54,10 +54,18 @@ gradient is derived and coded by hand before we let PyTorch's autograd do it for
 | 10 | [Generative models: VAE + diffusion](lessons/10_generative) | How do we *sample* new data? | VAE 77 vs 200 nats (independent pixels); DDPM score checked against the exact formula | ✅ |
 | 11 | [Self-organising maps + Hopfield networks](lessons/11_som_hopfield) | Can a network organise data without labels, and what do feedback loops compute? | SOM topographic error 0.085; Hopfield capacity collapses near 0.138 N; modern Hopfield = attention | ✅ |
 | 12 | [Differentiable Neural Computer](lessons/12_dnc_memory) | How can a network use an external, differentiable memory? | DNC copies sequences 2.4× longer than trained on (error 0/2 %); the LSTM fails | ✅ |
-| 13 | [Graph neural networks on meshes](lessons/13_graph_nn_mesh) | How do networks work on unstructured (FEM/CFD) meshes? | spatial MPNN vs spectral GCN vs FEM (P1 FEM verified at order 2.1) | 🚧 |
+| 13 | [Graph neural networks on meshes](lessons/13_graph_nn_mesh) | How do networks work on unstructured (FEM/CFD) meshes? | learnt Poisson solver: MPNN 20 % < GCN 28 % < per-node MLP 53 % median error; fails on finer meshes (honest limitation) | ✅ |
 | 14 | [Neural operators: DeepONet + FNO](lessons/14_neural_operators) | How do we learn a whole PDE solution operator? | FNO **0.24 %**, DeepONet 3.6 %, best linear operator 61 %; FNO works on a 4× finer grid | ✅ |
-| 15 | [Hamiltonian NNs + neural ODEs](lessons/15_hamiltonian_neural_ode) | How do we build physics (energy conservation) into a network? | HNN vs plain MLP energy drift; neural ODE from irregular samples | 🚧 |
-| 16 | [Reduced-order modelling for CFD](lessons/16_rom_cfd) | How do we compress and forecast a flow field? | lattice-Boltzmann wake (Strouhal check); POD vs conv autoencoder; DMD | 🚧 |
+| 15 | [Hamiltonian NNs + neural ODEs](lessons/15_hamiltonian_neural_ode) | How do we build physics (energy conservation) into a network? | energy drift over 15 periods: HNN 1-2 % vs plain MLP 11-48 %; neural ODE extrapolates Lotka-Volterra 2× | ✅ |
+| 16 | [Reduced-order modelling for CFD](lessons/16_rom_cfd) | How do we compress and forecast a flow field? | LBM wake, St within 13 %; a 1-D autoencoder code beats 4 POD modes; DMD forecasts best | ✅ |
+
+**How to study a lesson.** Each lesson has three views of the same material:
+* the **lesson page** `lessons/NN_topic/README.md` (click the lesson name above): theory, equations, figures and results;
+* the **notebook** [`notebooks/NN_topic.ipynb`](notebooks): run it cell by cell, with every figure inline;
+* the **script** `lessons/NN_topic/lesson.py`: the same code as one runnable file, with the reusable parts in [`nnaz/`](nnaz).
+
+The classical CFD/PDE solvers used to generate and verify data have their own page:
+[`docs/SOLVERS.md`](docs/SOLVERS.md).
 
 ## Quick start
 
@@ -1024,7 +1032,22 @@ capacity curve collapses near the theoretical $0.138N$.
 <img src="docs/lesson11/hopfield_recall.gif" width="30%"> <img src="docs/lesson11/hopfield_capacity.png" width="45%"></p>
 
 <!-- results:11 -->
-*(results table is generated from `docs/results/lessonNN.json` by the next full `run.py` pass)*
+| 15x15 SOM on MNIST (test digits) | SOM | k-means (225 centres) | random data points as prototypes |
+|---|---|---|---|
+| quantisation error | 5.253 | 5.053 | 6.307 |
+| topographic error | 0.085 | n/a (no grid) | 0.971 |
+| digit accuracy, unit majority label | 78.4% | 85.1% | majority class: 11.4% |
+
+| Hopfield rule (8 letters, 20 % flipped pixels) | correct pixels after recall, per letter |
+|---|---|
+| Hebbian | 0.88 0.88 0.95 0.96 0.81 0.98 0.84 0.89 |
+| projection (pseudo-inverse) | 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 |
+| modern (attention) | 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 |
+
+| P/N (N = 200 random patterns) | 0.02 | 0.05 | 0.08 | 0.10 | 0.12 | 0.14 | 0.16 | 0.20 | 0.25 | 0.30 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| classic (Hebbian) recalled | 1.00 | 1.00 | 1.00 | 0.95 | 0.85 | 0.70 | 0.40 | 0.10 | 0.00 | 0.00 |
+| modern (attention) recalled | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
 <!-- /results:11 -->
 
 ---
@@ -1109,8 +1132,32 @@ limitation, and the finer-mesh test measures it.
 <p align="center"><img src="docs/lesson13/gnn_poisson.png" width="100%"><br><img src="docs/lesson13/gnn_errors.png" width="55%"></p>
 
 <!-- results:13 -->
-*(results table is generated from `docs/results/lessonNN.json` by the next full `run.py` pass)*
+| model | parameters | median rel. L2 error, test meshes | 90th percentile | median, finer 30x30 meshes | training |
+|---|---|---|---|---|---|
+| MPNN (spatial, edge vectors), 12 layers | 119553 | 0.198 | 0.329 | 0.783 | 255 s |
+| GCN (spectral-derived, isotropic), 12 layers | 14977 | 0.276 | 0.665 | 0.868 | 59 s |
+| per-node MLP (no neighbours) | 17281 | 0.531 | 1.312 | 0.667 | 9 s |
+| zero prediction | - | 1.000 | - | 1.000 | - |
+
+FEM reference, rel. L2 error on 9² / 17² / 33² / 65² nodes: 4.0e-02 / 8.7e-03 / 2.2e-03 / 5.6e-04 (order 2.14).
 <!-- /results:13 -->
+
+**Honest reading.**
+* The spatial MPNN, which sees edge vectors, beats the isotropic GCN, and both beat the
+  per-node MLP. Neighbour information and geometry matter.
+* A median error of about 20 % is far from the FEM solver, which is cheap and exact up to
+  $O(h^2)$ for this linear problem. A learnt Poisson solver is not a replacement for a
+  sparse direct solve. The value of such models is for nonlinear, expensive physics
+  (MeshGraphNets on fluids and cloth), where the same architecture applies.
+* **Mesh-refinement failure.** On 30×30 meshes, finer than any seen in training, both GNNs
+  degrade badly, even below the neighbour-blind MLP. Two reasons:
+  1. 12 message-passing hops no longer span the domain;
+  2. the edge vectors are shorter than anything in training. The discrete Laplacian scales like
+     $1/h^2$, and the network has only learnt its behaviour at the training $h$.
+
+  Remedies from the literature are multiscale / multigrid GNNs, features normalised by the local
+  mesh size, or training on a range of resolutions. This is an important caveat for anyone
+  hoping to "train coarse, deploy fine".
 
 ---
 
@@ -1290,12 +1337,55 @@ latent space. We train on the first 75 % of the snapshots and test on the last 2
   trained on 5-step rollouts, then decoded.
 
 <!-- results:16 -->
-*(results table is generated from `docs/results/lessonNN.json` by the next full `run.py` pass)*
+| LBM validation | value |
+|---|---|
+| Strouhal number St = f D / U (FFT of a wake probe) | 0.1885 |
+| Williamson (1988), unconfined cylinder, Re = 100 | 0.1664 |
+| difference | +13.2 % |
+| lateral spacing / blockage D/H | 0.16 (periodic sides) |
+| LBM CPU time | 158 s |
+
+**Compression** (relative error w.r.t. the fluctuation, unseen snapshots)
+
+| latent dimension | 1 | 2 | 4 | 8 | 16 |
+|---|---|---|---|---|---|
+| POD (linear), test error | 0.756 | 0.411 | 0.295 | 0.077 | 0.010 |
+| conv autoencoder, test error | 0.133 | 0.067 | 0.040 | - | - |
+
+**Forecasting**
+
+| 100-snapshot forecast (last 25 % of the run) | relative error |
+|---|---|
+| DMD on 2 POD modes | 0.412 |
+| DMD on 8 POD modes | 0.082 |
+| autoencoder (latent 2) + neural latent map | 0.324 |
+| autoencoder reconstruction (no forecasting) | 0.067 |
+| mean flow (trivial baseline) | 1.000 |
 <!-- /results:16 -->
+
+**Reading the numbers.**
+* **Validation.** The Strouhal number is within about 13 % of Williamson's value for an
+  *unconfined* cylinder. The difference is physical, not a bug. Our side boundaries are periodic,
+  so we actually simulate an infinite row of cylinders 6.25 D apart. Neighbouring wakes interact,
+  and confinement is known to raise the shedding frequency. A wider domain (more cells) would
+  close the gap at the price of CPU time.
+* **Compression.** A single autoencoder latent variable beats 4 POD modes, and a 2-D latent
+  matches about 8 POD modes. This is the limit-cycle argument in numbers: the flow lives on a
+  closed curve, and POD has to spend two modes per harmonic to describe it linearly. The 2-D code
+  indeed traces a closed loop (right panel above).
+* **Forecasting.** For this *periodic* flow, the linear DMD model with 8 POD modes is the best
+  forecaster: a limit cycle is well described by a few pure oscillations, which is exactly DMD's
+  model. The neural latent map is accurate for a few periods but accumulates a **phase drift**,
+  so its error over 100 snapshots is larger. Its floor is the autoencoder's reconstruction
+  error (0.067). This honest result generalises: nonlinear ROMs shine for compression. For
+  long-time forecasting they need extra structure (phase/frequency conditioning, or training on
+  long rollouts), especially against DMD on problems that are nearly periodic.
 
 ---
 
 ## The CFD / PDE solvers behind the course
+
+(Also available as a separate page: [`docs/SOLVERS.md`](docs/SOLVERS.md).)
 
 Several lessons train networks on, or compare them with, the output of **classical numerical
 solvers written for this course**. They live in `nnaz/` next to the networks, are documented
@@ -1467,7 +1557,7 @@ vortex shedding is compared with Williamson's (1988) correlation for an unconfin
 
 ```
 nnaz/                 shared, importable course code (one module per topic)
-lessons/NN_topic/     the runnable lesson scripts
+lessons/NN_topic/     the runnable lesson scripts + a README.md page per lesson (generated)
 notebooks/            the lessons as Jupyter notebooks (generated by run.py, executed)
 docs/lessonNN/        figures and GIFs;  docs/results/*.json: numbers of the last run
 tests/                pytest: gradient checks, loss decreases, beats-baseline, error thresholds

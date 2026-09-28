@@ -238,8 +238,37 @@ def table_solvers(r):
     ])
 
 
+def table_13(r):
+    g = r["gnn"]
+    rows = [[k, v.get("params", "-"), f"{v['test_median']:.3f}", f"{v['test_p90']:.3f}" if "test_p90" in v else "-",
+             f"{v['fine_median']:.3f}", f"{v['train_s']:.0f} s" if "train_s" in v else "-"] for k, v in g.items()]
+    t = md_table(["model", "parameters", "median rel. L2 error, test meshes", "90th percentile",
+                  "median, finer 30x30 meshes", "training"], rows)
+    fem = " / ".join(_sci(e) for e in r["fem_err"])
+    return t + f"\n\nFEM reference, rel. L2 error on {' / '.join(f'{n}²' for n in r['fem_n'])} nodes: {fem} (order {r['fem_order']:.2f})."
+
+
+def table_16(r):
+    t0 = md_table(["LBM validation", "value"], [
+        ["Strouhal number St = f D / U (FFT of a wake probe)", f"{r['strouhal']:.4f}"],
+        ["Williamson (1988), unconfined cylinder, Re = 100", f"{r['strouhal_williamson']:.4f}"],
+        ["difference", f"{100 * (r['strouhal'] / r['strouhal_williamson'] - 1):+.1f} %"],
+        ["lateral spacing / blockage D/H", f"{r['blockage']:.2f} (periodic sides)"],
+        ["LBM CPU time", f"{r['lbm_time_s']:.0f} s"],
+    ])
+    pe, ae = r["pod_test_err"], r["ae_test_err"]
+    t1 = md_table(["latent dimension"] + list(pe.keys()),
+                  [["POD (linear), test error"] + [f"{v:.3f}" for v in pe.values()],
+                   ["conv autoencoder, test error"] + [f"{ae[k]:.3f}" if k in ae else "-" for k in pe.keys()]])
+    fc = {k: v for k, v in r["forecast"].items() if "eigen" not in k}
+    t2 = md_table(["100-snapshot forecast (last 25 % of the run)", "relative error"],
+                  [[k, f"{v:.3f}"] for k, v in fc.items()])
+    return t0 + "\n\n**Compression** (relative error w.r.t. the fluctuation, unseen snapshots)\n\n" + t1 + \
+        "\n\n**Forecasting**\n\n" + t2
+
+
 TABLES = {1: table_01, 2: table_02, 3: table_03, 4: table_04, 5: table_05, 6: table_06,
-          7: table_07, 8: table_08, 9: table_09, 10: table_10, 11: table_11, 12: table_12, 14: table_14, 15: table_15}
+          7: table_07, 8: table_08, 9: table_09, 10: table_10, 11: table_11, 12: table_12, 13: table_13, 14: table_14, 15: table_15, 16: table_16}
 
 
 def _load_json(name):
@@ -260,4 +289,42 @@ def update_readme(path=ROOT / "README.md") -> None:
         pat = re.compile(rf"(<!-- results:{tag} -->)(.*?)(<!-- /results:{tag} -->)", re.S)
         text = pat.sub(lambda m: f"{m.group(1)}\n{table}\n{m.group(3)}", text)
     path.write_text(text)
-    (DOCS / "results").mkdir(exist_ok=True)
+    write_lesson_pages(path)
+
+
+# ---------------------------------------------------------------- per-lesson markdown pages
+def _relink(text: str, depth: str) -> str:
+    """Rewrite repository-relative links of the root README for a page ``depth`` levels down."""
+    for key in ("docs/", "nnaz/", "notebooks/", "lessons/", "tests/", "validate_solvers.py", "run.py", "data/"):
+        text = text.replace(f'src="{key}', f'src="{depth}{key}').replace(f"]({key}", f"]({depth}{key}")
+    return text
+
+
+def write_lesson_pages(path=ROOT / "README.md") -> list:
+    """Split the root README into one README.md per lesson folder (plus docs/SOLVERS.md)."""
+    text = path.read_text()
+    lessons = sorted(p for p in (ROOT / "lessons").iterdir() if (p / "lesson.py").exists())
+    written = []
+    for i, d in enumerate(lessons):
+        n = int(d.name[:2])
+        m = re.search(rf"^## Lesson {n:02d}\b.*?(?=^---$)", text, re.S | re.M)
+        if not m:
+            continue
+        body = _relink(m.group(0), "../../").replace("## Lesson", "# Lesson", 1)
+        prev_ = f"[← {lessons[i - 1].name}](../{lessons[i - 1].name}/README.md)" if i > 0 else ""
+        next_ = f"[{lessons[i + 1].name} →](../{lessons[i + 1].name}/README.md)" if i + 1 < len(lessons) else ""
+        nav = " · ".join(x for x in (prev_, "[course overview](../../README.md)", next_) if x)
+        run = (f"\n\n## Run it\n\n```bash\npython lessons/{d.name}/lesson.py            # script: figures -> docs/lesson{n:02d}/\n"
+               f"jupyter lab notebooks/{d.name}.ipynb       # the same lesson as a notebook\n```\n")
+        page = (f"<!-- generated from the root README by nnaz/report.py - edit the root README instead -->\n"
+                f"{nav}\n\n{body.rstrip()}{run}\n---\n{nav}\n")
+        (d / "README.md").write_text(page)
+        written.append(d / "README.md")
+    m = re.search(r"^## The CFD / PDE solvers behind the course.*?(?=^---$)", text, re.S | re.M)
+    if m:
+        page = ("<!-- generated from the root README by nnaz/report.py -->\n[course overview](../README.md)\n\n"
+                + _relink(m.group(0), "../").replace("## The CFD", "# The CFD", 1)
+                + "\n\nRun the verification: `python validate_solvers.py`\n")
+        (DOCS / "SOLVERS.md").write_text(page)
+        written.append(DOCS / "SOLVERS.md")
+    return written
