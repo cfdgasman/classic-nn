@@ -1,0 +1,57 @@
+{
+  "compression": {
+    "2": {
+      "pca_train_optimum": 0.05595270364213884,
+      "linear_ae_train": 0.05604877322912216,
+      "pca_test": 0.05378600350191109,
+      "linear_ae_test": 0.053973991056822344,
+      "max_principal_angle_deg": 15.069828591354863,
+      "mlp_ae_test": 0.04251351207494736,
+      "conv_ae_test": 0.05037164315581322
+    },
+    "4": {
+      "pca_train_optimum": 0.04817945409387748,
+      "linear_ae_train": 0.048314422369003296,
+      "pca_test": 0.04683138436465741,
+      "linear_ae_test": 0.04703965904736633,
+      "max_principal_angle_deg": 31.982170276994058,
+      "mlp_ae_test": 0.031206639483571053,
+      "conv_ae_test": 0.03889063373208046
+    },
+    "8": {
+      "pca_train_optimum": 0.03786521729268965,
+      "linear_ae_train": 0.03790360689163208,
+      "pca_test": 0.037273923820863704,
+      "linear_ae_test": 0.037297207796323895,
+      "max_principal_angle_deg": 10.512485375501113,
+      "mlp_ae_test": 0.020028751343488693,
+      "conv_ae_test": 0.024785198271274567
+    },
+    "16": {
+      "pca_train_optimum": 0.027292815829186648,
+      "linear_ae_train": 0.027357975021004677,
+      "pca_test": 0.027252755637705534,
+      "linear_ae_test": 0.027338002883150463,
+      "max_principal_angle_deg": 5.419291818057202,
+      "mlp_ae_test": 0.012104948051273823,
+      "conv_ae_test": 0.015641065314412117
+    },
+    "32": {
+      "pca_train_optimum": 0.01724284279310605,
+      "linear_ae_train": 0.017351457849144936,
+      "pca_test": 0.017338723727847314,
+      "linear_ae_test": 0.017440377505418526,
+      "max_principal_angle_deg": 8.959346556287533,
+      "mlp_ae_test": 0.00716289272531867,
+      "conv_ae_test": 0.008205932565033436
+    }
+  },
+  "knn5_acc_pca2": 0.412,
+  "knn5_acc_ae2": 0.5825,
+  "denoising": {
+    "psnr_noisy": 9.372032093149867,
+    "psnr_pca_best": 15.094595923299018,
+    "pca_best_k": 64,
+    "psnr_conv_dae": 9.890847822337172
+  }
+}
