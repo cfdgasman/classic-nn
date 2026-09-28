@@ -1,0 +1,53 @@
+{
+  "som2d_qe": 0.07194887801209068,
+  "som2d_te": 0.0,
+  "som_qe": 5.252773088617633,
+  "som_te": 0.0848,
+  "kmeans_qe": 5.052560248617337,
+  "random_prototypes_qe": 6.306858822115277,
+  "random_prototypes_te": 0.9706,
+  "som_label_acc": 0.7836,
+  "kmeans_label_acc": 0.8506,
+  "majority_acc": 0.1142,
+  "hopfield_glyph_recall_exact": true,
+  "hopfield_energy": [
+    -103.7265625,
+    -376.5390625
+  ],
+  "capacity_loads": [
+    4,
+    10,
+    16,
+    20,
+    24,
+    28,
+    32,
+    40,
+    50,
+    60
+  ],
+  "capacity_classic": [
+    1.0,
+    1.0,
+    1.0,
+    0.9,
+    0.85,
+    0.45,
+    0.6,
+    0.1,
+    0.0,
+    0.0
+  ],
+  "capacity_modern": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ]
+}
