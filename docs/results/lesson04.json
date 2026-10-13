@@ -1,0 +1,24 @@
+{
+  "autograd_vs_hand_err": 0.0,
+  "custom_op_gradcheck": true,
+  "nested_grad_err_d1": 2.740863092043355e-16,
+  "nested_grad_err_d2": 5.447031714567174e-16,
+  "equivalence": {
+    "lr0.1": {
+      "grad_diff_step0": 1.6046192152785466e-16,
+      "max_loss_diff": 4.440892098500626e-16,
+      "loss_first": 1.0671616881446957,
+      "loss_last": 1.021471884252949
+    },
+    "lr0.5": {
+      "grad_diff_step0": 1.6046192152785466e-16,
+      "max_loss_diff": 1.316314553324594,
+      "loss_first": 1.0671616881446957,
+      "loss_last": 0.5917738488314338
+    }
+  },
+  "n_params": 4547,
+  "torch_test_acc": 0.996666669845581,
+  "torch_loss_first": 1.0722699276606242,
+  "torch_loss_last": 8.91288329148665e-05
+}

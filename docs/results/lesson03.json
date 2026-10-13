@@ -1,0 +1,101 @@
+{
+  "init": {
+    "tanh / small": {
+      "act_std_last": 6.692056290574201e-08,
+      "grad_ratio_first_last": 0.9893768321135159
+    },
+    "tanh / xavier": {
+      "act_std_last": 0.24040676710808587,
+      "grad_ratio_first_last": 1.0853213942541933
+    },
+    "relu / xavier": {
+      "act_std_last": 0.04881704403591801,
+      "grad_ratio_first_last": 0.7864811836334211
+    },
+    "relu / he": {
+      "act_std_last": 1.1046036120089584,
+      "grad_ratio_first_last": 0.14273203514572286
+    }
+  },
+  "activations": {
+    "sigmoid": {
+      "final_loss": 0.534326937183875,
+      "train_acc": 0.7983333333333333
+    },
+    "tanh": {
+      "final_loss": 0.00017474119155900852,
+      "train_acc": 1.0
+    },
+    "relu": {
+      "final_loss": 1.0516136957081048e-05,
+      "train_acc": 1.0
+    }
+  },
+  "optimisers": {
+    "GD  (lr 1e-3)": 0.024863343078694304,
+    "momentum 0.9 (lr 1e-4)": 0.02371051191342789,
+    "Adam (lr 2e-2)": 2.836964102516879e-07,
+    "mlp SGD lr 0.1": 0.08215858712159477,
+    "mlp momentum lr 0.01": 0.08422403448315006,
+    "mlp momentum lr 0.1": 0.0016288620427100504,
+    "mlp Adam lr 3e-3": 0.004115670862393821
+  },
+  "schedules": {
+    "constant": {
+      "final_train_loss": 0.0025115755124584956,
+      "test_acc": 0.9966666666666667
+    },
+    "step": {
+      "final_train_loss": 0.006188215381476045,
+      "test_acc": 0.9961111111111111
+    },
+    "cosine": {
+      "final_train_loss": 0.007008866740362309,
+      "test_acc": 0.9964444444444444
+    },
+    "cosine + warm-up": {
+      "final_train_loss": 0.006504716826450864,
+      "test_acc": 0.9963333333333333
+    }
+  },
+  "batchnorm": {
+    "plain": {
+      "final_loss": 1.103550263246151,
+      "train_acc": 0.3333333333333333
+    },
+    "with BatchNorm": {
+      "final_loss": 0.2457338197743995,
+      "train_acc": 0.8633333333333333
+    }
+  },
+  "overfitting": {
+    "no regularisation": {
+      "train_acc": 0.9933333333333333,
+      "val_acc_final": 0.7596666666666667,
+      "val_loss_final": 1.1648525786520616,
+      "best_epoch": 58,
+      "val_acc_early_stop": 0.8353333333333334
+    },
+    "weight decay 1e-3": {
+      "train_acc": 0.94,
+      "val_acc_final": 0.797,
+      "val_loss_final": 0.5417212908153476,
+      "best_epoch": 122,
+      "val_acc_early_stop": 0.8323333333333334
+    },
+    "dropout 0.3": {
+      "train_acc": 0.9533333333333334,
+      "val_acc_final": 0.7953333333333333,
+      "val_loss_final": 0.6050438778995246,
+      "best_epoch": 197,
+      "val_acc_early_stop": 0.859
+    },
+    "dropout 0.3 + wd 1e-3": {
+      "train_acc": 0.9133333333333333,
+      "val_acc_final": 0.819,
+      "val_loss_final": 0.4519940590882668,
+      "best_epoch": 199,
+      "val_acc_early_stop": 0.892
+    }
+  }
+}
